@@ -1,9 +1,11 @@
+import copy
 from time import time
 class NRegine():
 
     def __init__(self):
         self.n_soluzioni = 0
         self.n_chiamate = 0
+        self.soluzioni = []
 
     #===========================================================================
     # CASO 2 : rappresentiamo la soluzione come un vettore di N regine
@@ -11,6 +13,7 @@ class NRegine():
     def solve2(self, N):
         self.n_soluzioni = 0
         self.n_chiamate = 0
+        self.soluzioni = []
         self._ricorsione2([], N)
 
     # parziale è un vettore di coppie (riga,colonna)
@@ -21,8 +24,11 @@ class NRegine():
             #if self._is_soluzione(parziale):
                 #self.n_soluzioni += 1
                 #print(parziale)
-            self.n_soluzioni += 1
-            print(parziale)
+            # Verificare che la soluzione sia nuova (non ce ne siano altre uguali)
+            if self._is_nuova_soluzione(parziale):
+                self.n_soluzioni += 1
+                self.soluzioni.append(copy.deepcopy(parziale))
+
 
         else:
         # Devo verificare tutte le possibili soluzioni, quindi
@@ -40,6 +46,26 @@ class NRegine():
                         self._ricorsione2(parziale, N)
                         # backtracking
                         parziale.pop()
+
+    # Confrontiamo la soluzione potenziale con quelle già trovate, per verificare
+    # che sia diversa dalle altre
+    def _is_nuova_soluzione(self, soluzione_potenziale):
+        N = len(soluzione_potenziale)
+        # Considero tutte le soluzioni nella lista delle soluzioni
+        for soluzione in self.soluzioni:
+            counter = 0
+            # Considero le regine nella mia soluzione possibile
+            for regina in soluzione_potenziale:
+                # Se la mia regina è nella soluzione considerata incremeneto il contatore
+                if regina in soluzione:
+                    counter += 1
+            # Se il contatore è pari al numero tottale di regine N
+            # cioè ho N regine uguali tra soluzione possibile e soluzione
+            # allora return False
+            if counter == N:
+                return False
+        return True
+
 
 
 
@@ -106,3 +132,4 @@ if __name__ == '__main__':
     print("Elapsed time: ", end_time - start_time)
     print(f"Ho trovato {nreg.n_soluzioni} soluzioni possibili")
     print(f"Chiamate effettuate: {nreg.n_chiamate}")
+    print(nreg.soluzioni)
